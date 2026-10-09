@@ -5,6 +5,9 @@ import FeaturedBooks from './components/FeaturedBooks';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import OrderPanel from './components/OrderPanel';
+import AdminList from './components/adminList';
+import AddAdminForm from './components/addAdminForm';
+import AdminLoginForm from './components/AdminLoginForm';
 import {
   books,
   categories,
@@ -38,6 +41,8 @@ function App() {
   const [sortBy, setSortBy] = useState('featured');
   const [cartItems, setCartItems] = useState(startingCartItems);
   const [lastOrderTotal, setLastOrderTotal] = useState(0);
+  const [adminListVersion, setAdminListVersion] = useState(0);
+  const [adminToken, setAdminToken] = useState(() => localStorage.getItem('adminToken'));
 
   // Cộng toàn bộ số lượng từng dòng hàng để hiển thị tổng sách trong giỏ.
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
@@ -116,6 +121,17 @@ function App() {
   const handleNavigate = (nextPage) => {
     setPage(nextPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleAdminLogin = (token) => {
+    setAdminToken(token);
+    handleNavigate('admin');
+  };
+
+  const handleAdminLogout = () => {
+    localStorage.removeItem('adminToken');
+    setAdminToken(null);
+    handleNavigate('admin-login');
   };
 
   const handleCheckoutSuccess = (orderTotal) => {
@@ -219,6 +235,53 @@ function App() {
     </section>
   );
 
+  const renderAdminPage = () => (
+    <section className="page-heading">
+      <p className="eyebrow">Quản trị</p>
+      <h1>Danh sách Admin</h1>
+      <button
+        className="admin-add-button"
+        type="button"
+        onClick={() => handleNavigate('add-admin')}
+      >
+        Thêm Admin
+      </button>
+      <button className="admin-logout-button" type="button" onClick={handleAdminLogout}>
+        Đăng xuất
+      </button>
+      <AdminList key={adminListVersion} token={adminToken} />
+    </section>
+  );
+
+  const renderAddAdminPage = () => (
+    <section className="page-heading">
+      <p className="eyebrow">Quản trị</p>
+      <h1>Thêm Admin</h1>
+      <AddAdminForm
+        token={adminToken}
+        onAdded={() => {
+          setAdminListVersion((version) => version + 1);
+          handleNavigate('admin');
+        }}
+      />
+      <button
+        className="admin-back-button"
+        type="button"
+        onClick={() => handleNavigate('admin')}
+      >
+        Quay lại danh sách Admin
+      </button>
+    </section>
+  );
+
+  const renderAdminArea = () => {
+    if (!adminToken) {
+      return <AdminLoginForm onLogin={handleAdminLogin} />;
+    }
+
+    return page === 'add-admin' ? renderAddAdminPage() : renderAdminPage();
+  };
+
   return (
     <div className="bookstore">
       <Header
@@ -228,6 +291,7 @@ function App() {
       />
 
       <main>
+        {(page === 'add-admin' || page === 'admin' || page === 'admin-login') && renderAdminArea()}
         {page === 'cart' && renderCartPage()}
         {page === 'success' && renderSuccessPage()}
         {page === 'home' && renderHomePage()}

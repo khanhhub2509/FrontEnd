@@ -111,6 +111,20 @@ textarea {
   border-radius: 8px;
 }
 
+.btn.admin-button {
+  margin-right: 10px;
+  border: 1px solid var(--green);
+  color: var(--green);
+  background: white;
+  border-radius: 8px;
+  font-weight: 800;
+}
+
+.btn.admin-button:hover {
+  color: white;
+  background: var(--green);
+}
+
 .cart-button .badge {
   display: grid;
   min-width: 22px;
@@ -517,6 +531,144 @@ main {
   margin: 0;
   color: var(--muted);
   line-height: 1.65;
+}
+
+.admin-form {
+  margin-top: 8px;
+  padding: 20px;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.admin-form form {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-form input {
+  min-height: 42px;
+  margin-bottom: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.admin-form button {
+  width: fit-content;
+  padding: 10px 16px;
+  color: white;
+  background: var(--green);
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.admin-add-button,
+.admin-back-button {
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.admin-logout-button {
+  width: fit-content;
+  padding: 10px 16px;
+  color: #991b1b;
+  background: white;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.admin-login {
+  display: grid;
+  min-height: calc(100vh - 160px);
+  place-items: center;
+}
+
+.admin-login-card {
+  width: min(100%, 440px);
+  padding: 32px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.1);
+}
+
+.admin-login-card .eyebrow {
+  color: var(--accent);
+}
+
+.admin-login-card h1 {
+  margin: 0;
+  font-size: 32px;
+}
+
+.admin-login-card > p:not(.eyebrow) {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.admin-login-card form {
+  display: grid;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.admin-login-card label {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.admin-login-card input {
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.admin-login-card button {
+  margin-top: 8px;
+  padding: 12px 16px;
+  color: white;
+  background: var(--green);
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.admin-login-card button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.admin-login-error,
+.admin-list-error {
+  color: #991b1b;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.admin-add-button {
+  color: white;
+  background: var(--green);
+  margin: 16px 0;
+}
+
+.admin-back-button {
+  margin-top: 16px;
+  color: var(--ink);
+  background: white;
+  border: 1px solid var(--line);
 }
 
 .success-page {

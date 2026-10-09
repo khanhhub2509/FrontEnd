@@ -48,6 +48,14 @@ function Header({ cartCount, currentPage, onNavigate }) {
           </Nav>
 
           <Button
+            className="admin-button"
+            type="button"
+            onClick={() => onNavigate('admin')}
+          >
+            Quản lý Admin
+          </Button>
+
+          <Button
             className="cart-button"
             type="button"
             onClick={() => onNavigate('cart')}

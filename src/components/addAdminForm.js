@@ -1,69 +1,34 @@
-import React, { useState } from "react";
+import { useState } from 'react';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+const initialForm = { fullName: '', email: '', phone: '', password: '' };
 
-const AddAdminForm = ({ onAdded, token }) => {
-    //Biến nhận dữ liệu từ form
-    const [fullName, setFullName] = useState('');
-    const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
-    const [password, setPassword] = useState('');
+function AddAdminForm({ onAdded, token }) {
+  const [form, setForm] = useState(initialForm);
+  const [error, setError] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+  const submit = async (event) => {
+    event.preventDefault(); setError(''); setIsSaving(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/admins/create`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(form) });
+      if (!response.ok) { const message = await response.json().catch(() => null); throw new Error(typeof message === 'string' ? message : 'Không thể thêm admin.'); }
+      setForm(initialForm); onAdded?.();
+    } catch (requestError) { setError(requestError.message || 'Không thể thêm admin.'); }
+    finally { setIsSaving(false); }
+  };
 
-        //Kiểm tra đã nhập hay chưa 
-        if ([fullName, email, phone, password].some((value) => !value.trim())) {
-            alert("Vui lòng nhập đầy đủ thông tin");
-            return;
-        }
-
-        //Tạo biến mới để lưu
-        const newAdmin = {
-            fullName: fullName,
-            email: email,
-            phone: phone,
-            password: password
-        };
-
-        //Gọi API lưu
-        fetch(`${API_BASE_URL}/admins/create`, {
-            method: 'POST',
-            headers: {
-                'Content-type': 'application/json',
-                Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(newAdmin)
-        })
-            .then(respone => {
-                if (respone.ok) {
-                    alert("Thêm admin thành công");
-                    setFullName('');
-                    setEmail('');
-                    setPhone('');
-                    setPassword('');
-                    onAdded?.();
-                } else {
-                    alert("Thêm admin thất bại");
-                }
-            })
-            .catch(error => {
-                console.error("Lỗi", error);
-                alert("Thêm admin thất bại");
-            })
-    }
-
-    return <div className="admin-form">
-        <form onSubmit={handleSubmit}>
-            Họ tên: <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-            Email: <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-            Số điện thoại: <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
-            Mật khẩu: <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-            <button type="submit">
-                Thêm Admin
-            </button>
-        </form>
+  return <form className="admin-form" onSubmit={submit}>
+    <div className="admin-form-heading"><div><h2>Tạo tài khoản quản trị</h2><p>Thông tin đăng nhập được bảo vệ bằng mật khẩu mã hóa.</p></div></div>
+    <div className="admin-fields">
+      <label>Họ và tên<input value={form.fullName} onChange={(event) => setForm({ ...form, fullName: event.target.value })} required /></label>
+      <label>Email<input type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} required /></label>
+      <label>Số điện thoại<input type="tel" value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} required /></label>
+      <label>Mật khẩu<input type="password" minLength="6" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} required /></label>
     </div>
+    {error && <p className="admin-list-error" role="alert">{error}</p>}
+    <button className="primary-button" type="submit" disabled={isSaving}>{isSaving ? 'Đang tạo…' : 'Tạo tài khoản'}</button>
+  </form>;
 }
 
 export default AddAdminForm;

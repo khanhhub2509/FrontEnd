@@ -11,6 +11,10 @@ import AdminLoginForm from './components/AdminLoginForm';
 import CustomerManagement from './components/CustomerManagement';
 import EditAdminForm from './components/EditAdminForm';
 import EditCustomerForm from './components/EditCustomerForm';
+import PaymentMethodManagement from './components/PaymentMethodManagement';
+import EditPaymentMethodForm from './components/EditPaymentMethodForm';
+import PublisherManagement from './components/PublisherManagement';
+import EditPublisherForm from './components/EditPublisherForm';
 import {
   books,
   categories,
@@ -48,6 +52,8 @@ function App() {
   const [adminToken, setAdminToken] = useState(() => localStorage.getItem('adminToken'));
   const [selectedAdmin, setSelectedAdmin] = useState(null);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
+  const [selectedPublisher, setSelectedPublisher] = useState(null);
 
   // Cộng toàn bộ số lượng từng dòng hàng để hiển thị tổng sách trong giỏ.
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
@@ -339,6 +345,59 @@ function App() {
     );
   };
 
+  const renderPaymentMethodsPage = () => (
+    <section className="page-heading customer-page">
+      <p className="eyebrow">Quản trị</p>
+      <h1>Quản lý phương thức thanh toán</h1>
+      <p>Thêm, cập nhật hoặc xóa các phương thức thanh toán sử dụng khi tạo đơn hàng.</p>
+      <PaymentMethodManagement
+        onEdit={(paymentMethod) => {
+          setSelectedPaymentMethod(paymentMethod);
+          handleNavigate('edit-payment-method');
+        }}
+      />
+    </section>
+  );
+
+  const renderEditPaymentMethodPage = () => {
+    if (!selectedPaymentMethod) {
+      handleNavigate('payment-methods');
+      return null;
+    }
+
+    return (
+      <section className="page-heading customer-page">
+        <p className="eyebrow">Quản trị</p>
+        <h1>Sửa phương thức thanh toán</h1>
+        <EditPaymentMethodForm
+          paymentMethod={selectedPaymentMethod}
+          onSaved={() => handleNavigate('payment-methods')}
+          onCancel={() => handleNavigate('payment-methods')}
+        />
+      </section>
+    );
+  };
+
+  const renderPublishersPage = () => (
+    <section className="page-heading customer-page">
+      <p className="eyebrow">Quản trị</p>
+      <h1>Quản lý nhà xuất bản</h1>
+      <p>Theo dõi và cập nhật thông tin các nhà xuất bản sách.</p>
+      <PublisherManagement onEdit={(publisher) => { setSelectedPublisher(publisher); handleNavigate('edit-publisher'); }} />
+    </section>
+  );
+
+  const renderEditPublisherPage = () => {
+    if (!selectedPublisher) {
+      handleNavigate('publishers');
+      return null;
+    }
+    return <section className="page-heading customer-page">
+      <p className="eyebrow">Quản trị</p><h1>Sửa nhà xuất bản</h1>
+      <EditPublisherForm publisher={selectedPublisher} onSaved={() => handleNavigate('publishers')} onCancel={() => handleNavigate('publishers')} />
+    </section>;
+  };
+
   const renderAdminArea = () => {
     if (!adminToken) {
       return <AdminLoginForm onLogin={handleAdminLogin} />;
@@ -348,6 +407,10 @@ function App() {
     if (page === 'customers') return renderCustomerPage();
     if (page === 'edit-admin') return renderEditAdminPage();
     if (page === 'edit-customer') return renderEditCustomerPage();
+    if (page === 'payment-methods') return renderPaymentMethodsPage();
+    if (page === 'edit-payment-method') return renderEditPaymentMethodPage();
+    if (page === 'publishers') return renderPublishersPage();
+    if (page === 'edit-publisher') return renderEditPublisherPage();
     return renderAdminPage();
   };
 
@@ -362,7 +425,7 @@ function App() {
       />
 
       <main>
-        {(page === 'add-admin' || page === 'admin' || page === 'admin-login' || page === 'customers' || page === 'edit-admin' || page === 'edit-customer') && renderAdminArea()}
+        {(page === 'add-admin' || page === 'admin' || page === 'admin-login' || page === 'customers' || page === 'edit-admin' || page === 'edit-customer' || page === 'payment-methods' || page === 'edit-payment-method' || page === 'publishers' || page === 'edit-publisher') && renderAdminArea()}
         {page === 'cart' && renderCartPage()}
         {page === 'success' && renderSuccessPage()}
         {page === 'home' && renderHomePage()}

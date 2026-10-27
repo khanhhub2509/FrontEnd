@@ -51,6 +51,8 @@ function Header({ cartCount, currentPage, onNavigate, isAdminLoggedIn, onAdminLo
             <NavDropdown title="Quản trị" id="admin-menu" className="admin-menu">
               <NavDropdown.Item onClick={() => onNavigate('admin')}>Quản lý Admin</NavDropdown.Item>
               <NavDropdown.Item onClick={() => onNavigate('customers')}>Quản lý khách hàng</NavDropdown.Item>
+              <NavDropdown.Item onClick={() => onNavigate('payment-methods')}>Quản lý phương thức thanh toán</NavDropdown.Item>
+              <NavDropdown.Item onClick={() => onNavigate('publishers')}>Quản lý nhà xuất bản</NavDropdown.Item>
               <NavDropdown.Divider />
               <NavDropdown.Item className="logout-menu-item" onClick={onAdminLogout}>Đăng xuất</NavDropdown.Item>
             </NavDropdown>

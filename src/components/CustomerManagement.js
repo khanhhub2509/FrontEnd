@@ -76,7 +76,7 @@ function CustomerManagement({ onEdit }) {
 
   return <section className="customer-directory" aria-label="Quản lý khách hàng">
     <div className="customer-directory-header">
-      <div><p className="eyebrow">Quản lý khách hàng</p><h2>Khách hàng</h2><span>{customers.length} khách hàng trong hệ thống</span></div>
+      <div><p className="eyebrow">Quản lý khách hàng</p><h2>Khách hàng</h2></div>
       <div className="customer-header-actions"><button className="primary-button" type="button" onClick={openCreate}>Thêm khách hàng</button></div>
     </div>
 

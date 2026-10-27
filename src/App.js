@@ -8,6 +8,9 @@ import OrderPanel from './components/OrderPanel';
 import AdminList from './components/adminList';
 import AddAdminForm from './components/addAdminForm';
 import AdminLoginForm from './components/AdminLoginForm';
+import CustomerManagement from './components/CustomerManagement';
+import EditAdminForm from './components/EditAdminForm';
+import EditCustomerForm from './components/EditCustomerForm';
 import {
   books,
   categories,
@@ -43,6 +46,8 @@ function App() {
   const [lastOrderTotal, setLastOrderTotal] = useState(0);
   const [adminListVersion, setAdminListVersion] = useState(0);
   const [adminToken, setAdminToken] = useState(() => localStorage.getItem('adminToken'));
+  const [selectedAdmin, setSelectedAdmin] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   // Cộng toàn bộ số lượng từng dòng hàng để hiển thị tổng sách trong giỏ.
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
@@ -246,10 +251,14 @@ function App() {
       >
         Thêm Admin
       </button>
-      <button className="admin-logout-button" type="button" onClick={handleAdminLogout}>
-        Đăng xuất
-      </button>
-      <AdminList key={adminListVersion} token={adminToken} />
+      <AdminList
+        key={adminListVersion}
+        token={adminToken}
+        onEdit={(admin) => {
+          setSelectedAdmin(admin);
+          handleNavigate('edit-admin');
+        }}
+      />
     </section>
   );
 
@@ -274,12 +283,72 @@ function App() {
     </section>
   );
 
+  const renderCustomerPage = () => (
+    <section className="page-heading customer-page">
+      <p className="eyebrow">Quản trị</p>
+      <h1>Quản lý khách hàng</h1>
+      <p>Theo dõi, thêm mới và cập nhật thông tin khách hàng.</p>
+      <CustomerManagement
+        onEdit={(customer) => {
+          setSelectedCustomer(customer);
+          handleNavigate('edit-customer');
+        }}
+      />
+    </section>
+  );
+
+  const renderEditAdminPage = () => {
+    if (!selectedAdmin) {
+      handleNavigate('admin');
+      return null;
+    }
+
+    return (
+      <section className="page-heading">
+        <p className="eyebrow">Quản trị</p>
+        <h1>Sửa Admin</h1>
+        <EditAdminForm
+          admin={selectedAdmin}
+          token={adminToken}
+          onSaved={() => {
+            setAdminListVersion((version) => version + 1);
+            handleNavigate('admin');
+          }}
+          onCancel={() => handleNavigate('admin')}
+        />
+      </section>
+    );
+  };
+
+  const renderEditCustomerPage = () => {
+    if (!selectedCustomer) {
+      handleNavigate('customers');
+      return null;
+    }
+
+    return (
+      <section className="page-heading customer-page">
+        <p className="eyebrow">Quản trị</p>
+        <h1>Sửa khách hàng</h1>
+        <EditCustomerForm
+          customer={selectedCustomer}
+          onSaved={() => handleNavigate('customers')}
+          onCancel={() => handleNavigate('customers')}
+        />
+      </section>
+    );
+  };
+
   const renderAdminArea = () => {
     if (!adminToken) {
       return <AdminLoginForm onLogin={handleAdminLogin} />;
     }
 
-    return page === 'add-admin' ? renderAddAdminPage() : renderAdminPage();
+    if (page === 'add-admin') return renderAddAdminPage();
+    if (page === 'customers') return renderCustomerPage();
+    if (page === 'edit-admin') return renderEditAdminPage();
+    if (page === 'edit-customer') return renderEditCustomerPage();
+    return renderAdminPage();
   };
 
   return (
@@ -288,10 +357,12 @@ function App() {
         cartCount={cartCount}
         currentPage={page}
         onNavigate={handleNavigate}
+        isAdminLoggedIn={Boolean(adminToken)}
+        onAdminLogout={handleAdminLogout}
       />
 
       <main>
-        {(page === 'add-admin' || page === 'admin' || page === 'admin-login') && renderAdminArea()}
+        {(page === 'add-admin' || page === 'admin' || page === 'admin-login' || page === 'customers' || page === 'edit-admin' || page === 'edit-customer') && renderAdminArea()}
         {page === 'cart' && renderCartPage()}
         {page === 'success' && renderSuccessPage()}
         {page === 'home' && renderHomePage()}

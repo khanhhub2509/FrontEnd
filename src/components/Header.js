@@ -1,4 +1,4 @@
-import { Badge, Button, Container, Nav, Navbar } from 'react-bootstrap';
+import { Badge, Button, Container, Nav, Navbar, NavDropdown } from 'react-bootstrap';
 
 const navItems = [
   { href: '#categories', label: 'Danh mục', page: 'home' },
@@ -6,7 +6,7 @@ const navItems = [
   { href: '#support', label: 'Tư vấn', page: 'home' },
 ];
 
-function Header({ cartCount, currentPage, onNavigate }) {
+function Header({ cartCount, currentPage, onNavigate, isAdminLoggedIn, onAdminLogout }) {
   const handleNavClick = (event, item) => {
     if (currentPage !== 'home') {
       event.preventDefault();
@@ -47,13 +47,18 @@ function Header({ cartCount, currentPage, onNavigate }) {
             ))}
           </Nav>
 
-          <Button
-            className="admin-button"
-            type="button"
-            onClick={() => onNavigate('admin')}
-          >
-            Quản lý Admin
-          </Button>
+          {isAdminLoggedIn ? (
+            <NavDropdown title="Quản trị" id="admin-menu" className="admin-menu">
+              <NavDropdown.Item onClick={() => onNavigate('admin')}>Quản lý Admin</NavDropdown.Item>
+              <NavDropdown.Item onClick={() => onNavigate('customers')}>Quản lý khách hàng</NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item className="logout-menu-item" onClick={onAdminLogout}>Đăng xuất</NavDropdown.Item>
+            </NavDropdown>
+          ) : (
+            <Button className="admin-button" type="button" onClick={() => onNavigate('admin')}>
+              Đăng nhập quản trị
+            </Button>
+          )}
 
           <Button
             className="cart-button"

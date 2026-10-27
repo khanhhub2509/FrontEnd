@@ -7,6 +7,7 @@
   --accent-dark: #9a3412;
   --green: #2f6f5e;
   --soft-green: #ecfdf5;
+  --admin-font: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 * {
@@ -125,6 +126,36 @@ textarea {
   background: var(--green);
 }
 
+.admin-menu .dropdown-toggle {
+  margin-right: 10px;
+  padding: 9px 14px;
+  border: 1px solid var(--green);
+  color: var(--green) !important;
+  background: white;
+  border-radius: 8px;
+  font-weight: 800;
+  font-family: var(--admin-font);
+}
+
+.admin-menu .dropdown-toggle:hover,
+.admin-menu.show .dropdown-toggle {
+  color: white !important;
+  background: var(--green);
+}
+
+.admin-menu .dropdown-menu {
+  min-width: 220px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.14);
+}
+
+.admin-menu .dropdown-item { border-radius: 6px; font-family: var(--admin-font); font-weight: 700; }
+.admin-menu .dropdown-item:hover { color: var(--green); background: var(--soft-green); }
+.admin-menu .logout-menu-item { color: #b91c1c; }
+.admin-menu .logout-menu-item:hover { color: #991b1b; background: #fef2f2; }
+
 .cart-button .badge {
   display: grid;
   min-width: 22px;
@@ -163,9 +194,10 @@ main {
 .eyebrow {
   margin: 0 0 12px;
   color: #facc15;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
-  letter-spacing: 0;
+  letter-spacing: 0.1em;
+  line-height: 1.4;
   text-transform: uppercase;
 }
 
@@ -855,6 +887,13 @@ main {
 }
 
 /* Admin workspace */
+.admin-login,
+.page-heading:has(.admin-directory),
+.page-heading:has(.admin-form),
+.page-heading.customer-page {
+  font-family: var(--admin-font);
+}
+
 .page-heading:has(.admin-directory),
 .page-heading:has(.admin-form) {
   max-width: 1120px;
@@ -1013,6 +1052,46 @@ main {
 .page-heading .admin-add-button { width: fit-content; margin: 0; padding: 11px 17px; }
 .page-heading .admin-back-button { width: fit-content; margin: 0; }
 
+/* Customer workspace */
+.page-heading.customer-page {
+  max-width: 1240px;
+  gap: 18px;
+  padding: 34px;
+  background: transparent;
+  border: 0;
+}
+.customer-directory {
+  width: 100%;
+  padding: 28px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.07);
+}
+
+.customer-directory-header,
+.customer-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.customer-directory-header { justify-content: space-between; }
+.customer-directory-header h2 { margin: 0; font-size: 25px; }
+.customer-directory-header span { display: block; margin-top: 6px; color: var(--muted); font-size: 14px; }
+.customer-form { margin: 24px 0; padding: 22px; background: #f8fafc; border: 1px solid #dbe6e1; border-radius: 12px; }
+.customer-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 22px 0; }
+.customer-fields label { display: grid; gap: 7px; color: #475569; font-size: 13px; font-weight: 800; }
+.customer-fields input { width: 100%; min-height: 44px; padding: 10px 12px; color: var(--ink); background: white; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; }
+.customer-fields input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(47, 111, 94, 0.13); }
+.customer-table-wrap { overflow-x: auto; margin-top: 24px; }
+.customer-table { width: 100%; min-width: 820px; border-collapse: collapse; }
+.customer-table th { padding: 12px 16px; color: #64748b; background: #f8fafc; border-bottom: 1px solid var(--line); font-size: 12px; letter-spacing: .04em; text-align: left; text-transform: uppercase; }
+.customer-table td { padding: 16px; border-bottom: 1px solid #edf2f7; vertical-align: middle; }
+.customer-table tbody tr:hover { background: #fcfdfd; }
+.customer-avatar > span { background: var(--accent); }
+.customer-address { max-width: 260px; color: #475569; line-height: 1.5; }
+
 @media (max-width: 1180px) {
   .book-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1083,5 +1162,8 @@ main {
   .page-heading:has(.admin-directory),
   .page-heading:has(.admin-form),
   .admin-directory,
-  .admin-form { padding: 22px; }
+  .admin-form,
+  .customer-directory { padding: 22px; }
+
+  .customer-fields { grid-template-columns: 1fr; }
 }

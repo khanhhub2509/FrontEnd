@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { getBookImageUrl } from './bookImage';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
 const initialForm = (book) => ({
   bookName: book?.bookName || '',
-  image: book?.image || '',
   publishYear: book?.publishYear?.toString() || '',
   quantity: book?.quantity?.toString() || '',
   price: book?.price?.toString() || '',
@@ -15,30 +15,40 @@ const initialForm = (book) => ({
 
 function BookForm({ book, categories, authors, publishers, onSaved, onCancel, compact = false }) {
   const [form, setForm] = useState(() => initialForm(book));
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(() => getBookImageUrl(book?.image));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const updateField = (field, value) => setForm((current) => ({ ...current, [field]: value }));
+
+  useEffect(() => () => {
+    if (imagePreview?.startsWith('blob:')) URL.revokeObjectURL(imagePreview);
+  }, [imagePreview]);
+
+  const selectImage = (event) => {
+    const file = event.target.files?.[0] || null;
+    setImageFile(file);
+    setImagePreview(file ? URL.createObjectURL(file) : getBookImageUrl(book?.image));
+  };
 
   const submit = async (event) => {
     event.preventDefault();
     setSaving(true);
     setError('');
-    const payload = {
-      bookName: form.bookName.trim(),
-      image: form.image.trim(),
-      publishYear: Number(form.publishYear),
-      quantity: Number(form.quantity),
-      price: Number(form.price),
-      category: { id: Number(form.categoryId) },
-      author: { id: Number(form.authorId) },
-      publisher: { id: Number(form.publisherId) },
-    };
+    const payload = new FormData();
+    payload.append('bookName', form.bookName.trim());
+    payload.append('publishYear', form.publishYear);
+    payload.append('quantity', form.quantity);
+    payload.append('price', form.price);
+    payload.append('category.id', form.categoryId);
+    payload.append('author.id', form.authorId);
+    payload.append('publisher.id', form.publisherId);
+    if (imageFile) payload.append('imageFile', imageFile);
 
     try {
       const response = await fetch(`${API_BASE_URL}/books${book ? `/${book.id}` : '/create'}`, {
         method: book ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: payload,
       });
       if (!response.ok) throw new Error(book ? 'Cập nhật sách thất bại.' : 'Thêm sách thất bại.');
       onSaved();
@@ -53,7 +63,8 @@ function BookForm({ book, categories, authors, publishers, onSaved, onCancel, co
     <div className="admin-form-heading"><div><h2>{book ? 'Cập nhật sách' : 'Thêm sách mới'}</h2><p>Điền thông tin và chọn danh mục, tác giả, nhà xuất bản cho sách.</p></div>{compact && <button className="icon-button" type="button" onClick={onCancel} aria-label="Đóng biểu mẫu">×</button>}</div>
     <div className="customer-fields book-fields">
       <label>Tên sách<input value={form.bookName} onChange={(event) => updateField('bookName', event.target.value)} required maxLength="100" autoFocus /></label>
-      <label>Ảnh bìa (URL)<input type="url" value={form.image} onChange={(event) => updateField('image', event.target.value)} required maxLength="100" /></label>
+      <label>Ảnh bìa<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={selectImage} required={!book} /></label>
+      {imagePreview && <div className="book-image-preview"><img src={imagePreview} alt="Xem trước ảnh bìa" /><span>{imageFile ? imageFile.name : 'Ảnh bìa hiện tại'}</span></div>}
       <label>Năm xuất bản<input type="number" min="1000" max="9999" value={form.publishYear} onChange={(event) => updateField('publishYear', event.target.value)} required /></label>
       <label>Số lượng<input type="number" min="1" value={form.quantity} onChange={(event) => updateField('quantity', event.target.value)} required /></label>
       <label>Giá (VNĐ)<input type="number" min="1" step="0.01" value={form.price} onChange={(event) => updateField('price', event.target.value)} required /></label>

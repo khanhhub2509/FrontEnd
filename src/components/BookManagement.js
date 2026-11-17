@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import BookForm from './BookForm';
+import { getBookImageUrl } from './bookImage';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
@@ -55,7 +56,7 @@ function BookManagement({ onEdit }) {
     {error && <p className="admin-list-error" role="alert">{error}</p>}
     {isFormOpen && <BookForm compact categories={categories} authors={authors} publishers={publishers} onCancel={() => setIsFormOpen(false)} onSaved={async () => { setIsFormOpen(false); await loadData(); }} />}
     {loading ? <p className="admin-loading">Đang tải danh sách sách…</p> : <div className="customer-table-wrap"><table className="customer-table book-management-table"><thead><tr><th>Sách</th><th>Danh mục</th><th>Tác giả</th><th>Nhà xuất bản</th><th>Giá</th><th>Tồn kho</th><th className="admin-table-actions">Thao tác</th></tr></thead><tbody>
-      {books.map((book) => <tr key={book.id}><td><div className="book-management-title">{book.image && <img src={book.image} alt="" />}<div><strong>{book.bookName || 'Chưa đặt tên'}</strong><small>#{book.id} · {book.publishYear || 'Chưa rõ năm'}</small></div></div></td><td>{book.category?.name || '—'}</td><td>{book.author?.name || '—'}</td><td>{book.publisher?.name || '—'}</td><td>{Number(book.price || 0).toLocaleString('vi-VN')} ₫</td><td>{book.quantity ?? '—'}</td><td className="admin-table-actions"><button className="table-action edit" type="button" onClick={() => onEdit(book)}>Sửa</button><button className="table-action delete" type="button" onClick={() => deleteBook(book)} disabled={removingId === book.id}>{removingId === book.id ? 'Đang xóa…' : 'Xóa'}</button></td></tr>)}
+      {books.map((book) => <tr key={book.id}><td><div className="book-management-title">{book.image && <img src={getBookImageUrl(book.image)} alt="" />}<div><strong>{book.bookName || 'Chưa đặt tên'}</strong><small>#{book.id} · {book.publishYear || 'Chưa rõ năm'}</small></div></div></td><td>{book.category?.name || '—'}</td><td>{book.author?.name || '—'}</td><td>{book.publisher?.name || '—'}</td><td>{Number(book.price || 0).toLocaleString('vi-VN')} ₫</td><td>{book.quantity ?? '—'}</td><td className="admin-table-actions"><button className="table-action edit" type="button" onClick={() => onEdit(book)}>Sửa</button><button className="table-action delete" type="button" onClick={() => deleteBook(book)} disabled={removingId === book.id}>{removingId === book.id ? 'Đang xóa…' : 'Xóa'}</button></td></tr>)}
       {!books.length && <tr><td colSpan="7" className="admin-empty">Chưa có sách nào.</td></tr>}
     </tbody></table></div>}
   </section>;

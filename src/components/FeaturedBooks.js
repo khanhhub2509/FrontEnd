@@ -10,6 +10,9 @@ function FeaturedBooks({
   query,
   selectedCategory,
   sortBy,
+  isLoading,
+  error,
+  onRetry,
 }) {
   return (
     <div className="featured-section" id="featured">
@@ -19,7 +22,7 @@ function FeaturedBooks({
           <h2>Sách nổi bật</h2>
         </div>
         <span>
-          {books.length} kết quả
+          <strong>{books.length}</strong> kết quả
           {selectedCategory !== 'Tất cả' ? ` trong ${selectedCategory}` : ''}
         </span>
       </div>
@@ -44,7 +47,18 @@ function FeaturedBooks({
         </Form.Select>
       </div>
 
-      {books.length > 0 ? (
+      {isLoading ? (
+        <div className="empty-state" role="status">
+          <strong>Đang tải kho sách…</strong>
+          <span>BookNest đang lấy các tựa sách mới nhất.</span>
+        </div>
+      ) : error ? (
+        <div className="empty-state" role="alert">
+          <strong>Chưa thể tải dữ liệu</strong>
+          <span>{error}</span>
+          <button className="retry-button" type="button" onClick={onRetry}>Thử lại</button>
+        </div>
+      ) : books.length > 0 ? (
         <div className="book-grid">
           {books.map((book) => (
             <BookCard

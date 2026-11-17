@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import './App.css';
 import CategoryStrip from './components/CategoryStrip';
 import FeaturedBooks from './components/FeaturedBooks';
@@ -25,13 +25,29 @@ import OrderManagement from './components/OrderManagement';
 import EditOrderForm from './components/EditOrderForm';
 import OrderDetailView from './components/OrderDetailView';
 import {
-  books,
-  categories,
   formatCurrency,
-  startingCartItems,
 } from './components/bookData';
+import { getBookImageUrl } from './components/bookImage';
 
 const ALL_CATEGORIES = 'Tất cả';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+
+const toHomeBook = (book) => ({
+  id: book.id,
+  title: book.bookName || 'Chưa đặt tên',
+  author: book.author?.name || 'Chưa có tác giả',
+  category: book.category?.name || 'Chưa phân loại',
+  price: Number(book.price) || 0,
+  originalPrice: Number(book.price) || 0,
+  tag: book.publishYear ? `XB ${book.publishYear}` : 'Sách hay',
+  color: '#315f72',
+  image: getBookImageUrl(book.image),
+  rating: null,
+  sold: null,
+  stock: Number(book.quantity) || 0,
+  publishYear: book.publishYear,
+  description: book.publisher?.name ? `Nhà xuất bản: ${book.publisher.name}` : 'Khám phá tựa sách đang có tại BookNest.',
+});
 
 const sortBooks = (bookList, sortBy) =>
   [...bookList].sort((firstBook, secondBook) => {
@@ -55,7 +71,11 @@ function App() {
   const [query, setQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(ALL_CATEGORIES);
   const [sortBy, setSortBy] = useState('featured');
-  const [cartItems, setCartItems] = useState(startingCartItems);
+  const [cartItems, setCartItems] = useState([]);
+  const [homeBooks, setHomeBooks] = useState([]);
+  const [homeCategories, setHomeCategories] = useState([]);
+  const [isHomeLoading, setIsHomeLoading] = useState(true);
+  const [homeError, setHomeError] = useState('');
   const [lastOrderTotal, setLastOrderTotal] = useState(0);
   const [adminListVersion, setAdminListVersion] = useState(0);
   const [adminToken, setAdminToken] = useState(() => localStorage.getItem('adminToken'));
@@ -68,6 +88,44 @@ function App() {
   const [selectedBook, setSelectedBook] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
+  const loadHomeData = async () => {
+    setIsHomeLoading(true);
+    setHomeError('');
+
+    try {
+      const [booksResponse, categoriesResponse] = await Promise.all([
+        fetch(`${API_BASE_URL}/books`),
+        fetch(`${API_BASE_URL}/categories`),
+      ]);
+
+      if (!booksResponse.ok || !categoriesResponse.ok) {
+        throw new Error('Không thể tải sách và danh mục từ máy chủ.');
+      }
+
+      const [bookData, categoryData] = await Promise.all([
+        booksResponse.json(),
+        categoriesResponse.json(),
+      ]);
+      setHomeBooks(Array.isArray(bookData) ? bookData.map(toHomeBook) : []);
+      setHomeCategories(Array.isArray(categoryData) ? categoryData : []);
+    } catch (requestError) {
+      setHomeError(requestError.message || 'Không thể kết nối tới máy chủ.');
+      setHomeBooks([]);
+      setHomeCategories([]);
+    } finally {
+      setIsHomeLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadHomeData();
+  }, []);
+
+  const categoryNames = useMemo(
+    () => [ALL_CATEGORIES, ...homeCategories.map((category) => category.name).filter(Boolean)],
+    [homeCategories],
+  );
+
   // Cộng toàn bộ số lượng từng dòng hàng để hiển thị tổng sách trong giỏ.
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
@@ -75,7 +133,7 @@ function App() {
     const normalizedQuery = query.trim().toLowerCase();
 
     // Lọc sách theo danh mục và từ khóa, sau đó sắp xếp theo lựa chọn của người dùng.
-    const filteredBooks = books.filter((book) => {
+    const filteredBooks = homeBooks.filter((book) => {
       const matchesCategory =
         selectedCategory === ALL_CATEGORIES || book.category === selectedCategory;
       const matchesQuery =
@@ -88,12 +146,12 @@ function App() {
     });
 
     return sortBooks(filteredBooks, sortBy);
-  }, [query, selectedCategory, sortBy]);
+  }, [homeBooks, query, selectedCategory, sortBy]);
 
   // Ghép bookId trong giỏ với dữ liệu sách đầy đủ để OrderPanel có đủ thông tin hiển thị.
   const detailedCartItems = cartItems
     .map((item) => {
-      const book = books.find((currentBook) => currentBook.id === item.bookId);
+      const book = homeBooks.find((currentBook) => currentBook.id === item.bookId);
       return book ? { ...book, quantity: item.quantity } : null;
     })
     .filter(Boolean);
@@ -122,7 +180,7 @@ function App() {
             return item;
           }
 
-          const book = books.find((currentBook) => currentBook.id === bookId);
+          const book = homeBooks.find((currentBook) => currentBook.id === bookId);
           const nextQuantity =
             direction === 'increase' ? item.quantity + 1 : item.quantity - 1;
 
@@ -169,7 +227,7 @@ function App() {
       <Hero query={query} onQueryChange={setQuery} />
 
       <CategoryStrip
-        categories={categories}
+        categories={categoryNames}
         selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
       />
@@ -184,6 +242,9 @@ function App() {
           sortBy={sortBy}
           onQueryChange={setQuery}
           onSortChange={setSortBy}
+          isLoading={isHomeLoading}
+          error={homeError}
+          onRetry={loadHomeData}
         />
       </section>
 

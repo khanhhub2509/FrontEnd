@@ -15,6 +15,15 @@ import PaymentMethodManagement from './components/PaymentMethodManagement';
 import EditPaymentMethodForm from './components/EditPaymentMethodForm';
 import PublisherManagement from './components/PublisherManagement';
 import EditPublisherForm from './components/EditPublisherForm';
+import AuthorManagement from './components/AuthorManagement';
+import EditAuthorForm from './components/EditAuthorForm';
+import CategoryManagement from './components/CategoryManagement';
+import EditCategoryForm from './components/EditCategoryForm';
+import BookManagement from './components/BookManagement';
+import EditBookForm from './components/EditBookForm';
+import OrderManagement from './components/OrderManagement';
+import EditOrderForm from './components/EditOrderForm';
+import OrderDetailView from './components/OrderDetailView';
 import {
   books,
   categories,
@@ -54,6 +63,10 @@ function App() {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
   const [selectedPublisher, setSelectedPublisher] = useState(null);
+  const [selectedAuthor, setSelectedAuthor] = useState(null);
+  const [selectedCategoryForEdit, setSelectedCategoryForEdit] = useState(null);
+  const [selectedBook, setSelectedBook] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   // Cộng toàn bộ số lượng từng dòng hàng để hiển thị tổng sách trong giỏ.
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
@@ -398,6 +411,88 @@ function App() {
     </section>;
   };
 
+  const renderAuthorsPage = () => (
+    <section className="page-heading customer-page">
+      <p className="eyebrow">Quản trị</p>
+      <h1>Quản lý tác giả</h1>
+      <p>Thêm, cập nhật hoặc xóa các tác giả hiển thị cùng sách.</p>
+      <AuthorManagement onEdit={(author) => { setSelectedAuthor(author); handleNavigate('edit-author'); }} />
+    </section>
+  );
+
+  const renderEditAuthorPage = () => {
+    if (!selectedAuthor) {
+      handleNavigate('authors');
+      return null;
+    }
+    return <section className="page-heading customer-page">
+      <p className="eyebrow">Quản trị</p><h1>Sửa tác giả</h1>
+      <EditAuthorForm author={selectedAuthor} onSaved={() => handleNavigate('authors')} onCancel={() => handleNavigate('authors')} />
+    </section>;
+  };
+
+  const renderCategoriesPage = () => (
+    <section className="page-heading customer-page">
+      <p className="eyebrow">Quản trị</p>
+      <h1>Quản lý danh mục</h1>
+      <p>Thêm, cập nhật hoặc xóa các danh mục dùng để phân loại sách.</p>
+      <CategoryManagement onEdit={(category) => { setSelectedCategoryForEdit(category); handleNavigate('edit-category'); }} />
+    </section>
+  );
+
+  const renderEditCategoryPage = () => {
+    if (!selectedCategoryForEdit) {
+      handleNavigate('categories');
+      return null;
+    }
+    return <section className="page-heading customer-page">
+      <p className="eyebrow">Quản trị</p><h1>Sửa danh mục</h1>
+      <EditCategoryForm category={selectedCategoryForEdit} onSaved={() => handleNavigate('categories')} onCancel={() => handleNavigate('categories')} />
+    </section>;
+  };
+
+  const renderBooksPage = () => (
+    <section className="page-heading customer-page">
+      <p className="eyebrow">Quản trị</p>
+      <h1>Quản lý sách</h1>
+      <p>Quản lý thông tin sách, tồn kho, giá bán và các đơn vị liên quan.</p>
+      <BookManagement onEdit={(book) => { setSelectedBook(book); handleNavigate('edit-book'); }} />
+    </section>
+  );
+
+  const renderEditBookPage = () => {
+    if (!selectedBook) {
+      handleNavigate('books');
+      return null;
+    }
+    return <section className="page-heading customer-page">
+      <p className="eyebrow">Quản trị</p><h1>Sửa sách</h1>
+      <EditBookForm book={selectedBook} onSaved={() => handleNavigate('books')} onCancel={() => handleNavigate('books')} />
+    </section>;
+  };
+
+  const renderOrdersPage = () => (
+    <section className="page-heading customer-page">
+      <p className="eyebrow">Quản trị</p>
+      <h1>Quản lý đơn hàng</h1>
+      <p>Theo dõi, tạo mới, cập nhật và xem chi tiết từng đơn hàng.</p>
+      <OrderManagement
+        onEdit={(order) => { setSelectedOrder(order); handleNavigate('edit-order'); }}
+        onViewDetail={(order) => { setSelectedOrder(order); handleNavigate('order-detail'); }}
+      />
+    </section>
+  );
+
+  const renderEditOrderPage = () => {
+    if (!selectedOrder) { handleNavigate('orders'); return null; }
+    return <section className="page-heading customer-page"><p className="eyebrow">Quản trị</p><h1>Sửa đơn hàng</h1><EditOrderForm order={selectedOrder} onSaved={() => handleNavigate('orders')} onCancel={() => handleNavigate('orders')} /></section>;
+  };
+
+  const renderOrderDetailPage = () => {
+    if (!selectedOrder) { handleNavigate('orders'); return null; }
+    return <section className="page-heading customer-page"><p className="eyebrow">Quản trị</p><h1>Chi tiết đơn hàng</h1><OrderDetailView orderId={selectedOrder.id} onBack={() => handleNavigate('orders')} /></section>;
+  };
+
   const renderAdminArea = () => {
     if (!adminToken) {
       return <AdminLoginForm onLogin={handleAdminLogin} />;
@@ -411,6 +506,15 @@ function App() {
     if (page === 'edit-payment-method') return renderEditPaymentMethodPage();
     if (page === 'publishers') return renderPublishersPage();
     if (page === 'edit-publisher') return renderEditPublisherPage();
+    if (page === 'authors') return renderAuthorsPage();
+    if (page === 'edit-author') return renderEditAuthorPage();
+    if (page === 'categories') return renderCategoriesPage();
+    if (page === 'edit-category') return renderEditCategoryPage();
+    if (page === 'books') return renderBooksPage();
+    if (page === 'edit-book') return renderEditBookPage();
+    if (page === 'orders') return renderOrdersPage();
+    if (page === 'edit-order') return renderEditOrderPage();
+    if (page === 'order-detail') return renderOrderDetailPage();
     return renderAdminPage();
   };
 
@@ -425,7 +529,7 @@ function App() {
       />
 
       <main>
-        {(page === 'add-admin' || page === 'admin' || page === 'admin-login' || page === 'customers' || page === 'edit-admin' || page === 'edit-customer' || page === 'payment-methods' || page === 'edit-payment-method' || page === 'publishers' || page === 'edit-publisher') && renderAdminArea()}
+        {(page === 'add-admin' || page === 'admin' || page === 'admin-login' || page === 'customers' || page === 'edit-admin' || page === 'edit-customer' || page === 'payment-methods' || page === 'edit-payment-method' || page === 'publishers' || page === 'edit-publisher' || page === 'authors' || page === 'edit-author' || page === 'categories' || page === 'edit-category' || page === 'books' || page === 'edit-book' || page === 'orders' || page === 'edit-order' || page === 'order-detail') && renderAdminArea()}
         {page === 'cart' && renderCartPage()}
         {page === 'success' && renderSuccessPage()}
         {page === 'home' && renderHomePage()}

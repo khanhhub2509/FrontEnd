@@ -53,6 +53,10 @@ function Header({ cartCount, currentPage, onNavigate, isAdminLoggedIn, onAdminLo
               <NavDropdown.Item onClick={() => onNavigate('customers')}>Quản lý khách hàng</NavDropdown.Item>
               <NavDropdown.Item onClick={() => onNavigate('payment-methods')}>Quản lý phương thức thanh toán</NavDropdown.Item>
               <NavDropdown.Item onClick={() => onNavigate('publishers')}>Quản lý nhà xuất bản</NavDropdown.Item>
+              <NavDropdown.Item onClick={() => onNavigate('authors')}>Quản lý tác giả</NavDropdown.Item>
+              <NavDropdown.Item onClick={() => onNavigate('categories')}>Quản lý danh mục</NavDropdown.Item>
+              <NavDropdown.Item onClick={() => onNavigate('books')}>Quản lý sách</NavDropdown.Item>
+              <NavDropdown.Item onClick={() => onNavigate('orders')}>Quản lý đơn hàng</NavDropdown.Item>
               <NavDropdown.Divider />
               <NavDropdown.Item className="logout-menu-item" onClick={onAdminLogout}>Đăng xuất</NavDropdown.Item>
             </NavDropdown>
